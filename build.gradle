@@ -1,0 +1,141 @@
+apply plugin: 'application'
+apply plugin: 'java-library'
+compileJava.options.encoding='UTF-8' //这一句可以防止项目中文乱码	
+buildscript {
+	  repositories {
+			mavenLocal()
+			mavenCentral() 
+   			jcenter() {url "http://jcenter.bintray.com/"}
+			maven {url "https://plugins.gradle.org/m2/"}
+			maven {url "http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/"}
+			maven {url "http://maven.nuiton.org/release/"}
+		}
+	  dependencies {
+			tasks.withType(JavaCompile) {options.encoding = "UTF-8"}
+	  }
+}
+allprojects {  
+	apply plugin: 'java'
+	apply plugin: 'maven'
+	apply plugin: 'eclipse'
+	sourceCompatibility = 1.8   // 设置 JDK 版本
+	targetCompatibility = 1.8
+	ext.vendor = 'Sunjian'
+}
+version = '1.3'
+def jarbitExt=""
+def env = System.getProperty("env") ?: "dev" //设置多环境
+def bit = System.getProperty("bit") ?: "64" //设置多环境
+if(!"32".equals(bit)){
+	jarbitExt = "_64"
+}
+repositories {
+   	jcenter() {url "http://jcenter.bintray.com/"}
+	maven {url "http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/"}
+	maven {url "http://maven.nuiton.org/release/"}
+	maven {url "http://repository.jspresso.org/maven2/"}
+	maven {url "http://central.maven.org/maven2/"}
+}
+dependencies {
+	compile( project(':des-wkope-task')) {
+   	 exclude group: 'org.eclipse.swt', module: 'org.eclipse.swt.win32.win32.x86_64'
+	}
+	
+	compile(
+	//'org.eclipse.swt:org.eclipse.swt.win32.win32.x86_64:4.3',
+	//'org.eclipse:swt-win32-win32-x86:3.5.2',
+	//'org.eclipse.swt:org.eclipse.swt.win32.win32.x86:4.3',
+	//'swt:win32-win32-x86_64:3.7.2',
+	//'org.eclipse:swt:4.6.1',
+	//'org.eclipse:swt:3.3.0-v3346',
+	
+	
+	'org.slf4j:slf4j-api:1.7.21',
+	'org.slf4j:slf4j-simple:1.7.25',
+	
+	'asm:asm:3.3.1',
+	'net.sourceforge.htmlunit:htmlunit:2.32',
+	'org.jsoup:jsoup:1.10.3',
+	'org.apache.poi:poi:3.17',
+	'org.apache.poi:poi-ooxml:3.17',
+	'org.apache.poi:poi-ooxml-schemas:3.17',
+	'org.apache.poi:poi-scratchpad:3.17',
+	/* json */
+	'com.alibaba:fastjson:1.2.45',
+	'dom4j:dom4j:1.6.1',
+	'net.sourceforge.cpdetector:cpdetector:1.0.7',
+	'com.google.guava:guava:25.0-jre',
+	/* mybatis */
+	'org.mybatis:mybatis:3.3.0',
+	/* mysql-connector */
+	'mysql:mysql-connector-java:5.1.20',    
+	/* commons-dbcp 数据库缓冲池 */
+	'commons-dbcp:commons-dbcp:1.4',
+	'net.sf.ucanaccess:ucanaccess:4.0.4',
+	/* log4j */
+	'log4j:log4j:1.2.17'
+	)
+	compile("org.eclipse.swt:org.eclipse.swt.win32.win32.x86${jarbitExt}:4.3")	
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs =["src/main","src/main/java","src/main/resources"]
+            exclude "/"
+            exclude "**/*"
+        }
+    }
+}
+
+def newjarfile ="des-wkope-${version}_${bit}.jar"
+jar {
+	configurations.runtime.each { println it.path }
+	println "========="
+    configurations.compile.each { println it.path }
+    println "========="
+
+	println '>>>>>>>>>>>>>>>>jar'
+    manifest {  
+        attributes (
+        		'Manifest-Version':version, 
+        		'Implementation-Title': 'des-wkope',  
+                'Implementation-Version': version,  
+                'Created-By': vendor,  
+                'Main-Class': 'des.wangku.operate.Desktop' 
+        )  
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    into('assets') {
+        from 'assets'
+    }
+	println '>>>>>>>>>>>>>>>>拷贝jar文件!!!'	
+    doLast {
+        copy {        
+		    from( 'build/libs') 
+			include("des-wkope-${version}.jar")   
+		    into( 'build/libs')  
+		    rename("des-wkope-${version}.jar",newjarfile) 
+        }
+        delete{
+		    delete ("des-wkope-${version}.jar")
+        }
+    }
+	println '>>>>>>>>>>>>>>>>jar         ok!!!'
+}
+
+run.doFirst{
+	println 'run.doFirst'
+        copy {  
+            from  'src/main/resources/'  
+            into 'build/classes/main/' 
+    		include '**/*.*' 
+            }
+}
+run {
+    systemProperty "env", System.getProperty("env")
+    systemProperty "bit", System.getProperty("bit")
+}
+
+mainClassName='des.wangku.operate.Desktop'

@@ -1,0 +1,2 @@
+includeFlat  'des-wkope-task'
+rootProject.name = 'des-wkope'

@@ -1,0 +1,7 @@
+基础信息:
+	容器抽象:des.wangku.operate.standard.task.AbstractTask
+	容器宽高:900 * 550
+	模块目录:/model
+	输出目录:/output
+1.01版本:
+	主平台添加线程运行环境。

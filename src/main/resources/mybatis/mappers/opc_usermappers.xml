@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="des.wangku.operate.dao.Opc_userMapper">
+<!-- 自定义返回结果集 -->
+   <resultMap id="opc_userMap" type="Opc_user">
+   		<id property="id"  column="id" jdbcType="BIGINT"/>
+        <result property="username" column="username" javaType="java.lang.String"></result>
+        <result property="password" column="password" javaType="java.lang.String"></result>
+        <result property="modify_time" column="modify_time" javaType="java.sql.Timestamp"></result>
+    </resultMap>
+    
+    <select id="getUser" parameterType="java.util.Map" resultMap="opc_userMap">
+     select * from opc_user where username=#{username} and  password=#{password}  limit 1
+    </select>
+    
+</mapper>
