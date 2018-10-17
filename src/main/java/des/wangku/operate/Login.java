@@ -141,9 +141,13 @@ public class Login extends Composite {
 			confusername = properties.getProperty("username");
 			confpassword = properties.getProperty("password");
 		}
-		if (username.equals(confusername) && password.equals(confpassword)) return Desktop.isAdmin = true;
-		Opc_user user = Utils.getDBUser(username, password);
-		if (user != null) { return true; }
+		if (username.equals(confusername) && password.equals(confpassword)) {
+			return Desktop.isAdmin = true;
+		}
+		if(Const.isLinkUserDB) {
+			Opc_user user = Utils.getDBUser(username, password);
+			if (user != null) { return true; }			
+		}
 		label_2.setText("用户名与密码不正确！");
 		textPassword.setFocus();
 		return false;

@@ -141,7 +141,7 @@ public class Utils {
 	 * 任务菜单设置
 	 * @param parent Menu
 	 */
-	static void remarkMenu(Menu parent){
+	static void remarkMenu(Menu parent) {
 		if (parent == null) return;
 		Image taskImage = SWTResourceManager.getImage(Desktop.class, "/images/icon/star.gif");
 		Composite compositeMini = new Composite(parent.getShell(), SWT.NONE);
@@ -165,28 +165,37 @@ public class Utils {
 			Class<?> c = extendTaskMapOrder.get(key);
 			menuItem.setText(key);
 			menuItem.setImage(taskImage);
-			menuItem.addListener(SWT.Selection, new Listener() {
-				public void handleEvent(Event e) {
-					try {
-						Desktop.compositeMain.dispose();
-						Desktop.resetMainComposite();
-						Constructor<?> c2 = c.getDeclaredConstructor(new Class[] { Composite.class, int.class });
-						LoadingProgressBar load = new LoadingProgressBar(Desktop.shell, 0);
-						ExecutorService pool = Executors.newFixedThreadPool(1);
-						Runnable task = (Runnable) load;//new LoadingProgressBar(Desktop.shell, 0);
-						pool.submit(task);
-						@SuppressWarnings("unused")
-						AbstractTask a2 = (AbstractTask) c2.newInstance(new Object[] { Desktop.compositeMain, SWT.NONE });
-						load.getShell().dispose();
-						pool.shutdown();
-						Desktop.repaintMainComposite();
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
-				}
-			});
+			menuItem.addListener(SWT.Selection, getMenuItemListener(c));
 		}
+	}
 
+	/**
+	 * 菜单监听器
+	 * @param c Class&lt;c&gt;
+	 * @return Listener
+	 */
+	private static Listener getMenuItemListener(Class<?> c) {
+		Listener t = new Listener() {
+			public void handleEvent(Event e) {
+				try {
+					Desktop.compositeMain.dispose();
+					Desktop.resetMainComposite();
+					Constructor<?> c2 = c.getDeclaredConstructor(new Class[] { Composite.class, int.class });
+					LoadingProgressBar load = new LoadingProgressBar(Desktop.shell, 0);
+					ExecutorService pool = Executors.newFixedThreadPool(1);
+					Runnable task = (Runnable) load;//new LoadingProgressBar(Desktop.shell, 0);
+					pool.submit(task);
+					@SuppressWarnings("unused")
+					AbstractTask a2 = (AbstractTask) c2.newInstance(new Object[] { Desktop.compositeMain, SWT.NONE });
+					load.getShell().dispose();
+					pool.shutdown();
+					Desktop.repaintMainComposite();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		};
+		return t;
 	}
 
 	/**
@@ -212,6 +221,7 @@ public class Utils {
 	static final String getContentFromDB() {
 		String content = "";
 		SqlSession session = MainSource.getSession();
+		if (session == null) return null;
 		Opc_contentMapper mapper = session.getMapper(Opc_contentMapper.class);
 		try {
 			Opc_content user = mapper.selectByKey("opera-org");
