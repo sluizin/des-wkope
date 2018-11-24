@@ -1,6 +1,7 @@
 apply plugin: 'application'
 apply plugin: 'java-library'
 compileJava.options.encoding='UTF-8' //这一句可以防止项目中文乱码	
+import groovy.io.FileType
 buildscript {
 	  repositories {
 			mavenLocal()
@@ -132,6 +133,22 @@ run.doFirst{
             into 'build/classes/main/' 
     		include '**/*.*' 
             }
+	println '删除所有项目中生成的lib中的jar'
+     def dir = new File('D:/Eclipse/eclipse-oxygen/Workspaces')
+     dir.eachDirMatch(~/^des-wkope-task-[pP].*/){d ->
+            def path = d.path+"\\build\\libs\\"
+            def jarlibsdir = new File(path)
+            jarlibsdir.eachFileMatch(~/^des-wkope-task-[pP].*\.jar.*/){
+            	f->
+            	println f
+    			delete f
+            }
+      }
+	println '删除所有项目中生成的lib中的jar>>>完成'
+    // println "第二种"
+    // dir.traverse(type:FileType.DIRECTORIES,nameFilter:~/.*des-wkope-task-[pP].*/) {
+       // println it
+     //}    
 }
 run {
     systemProperty "env", System.getProperty("env")

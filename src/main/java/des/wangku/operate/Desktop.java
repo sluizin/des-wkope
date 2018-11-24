@@ -4,7 +4,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-
 import org.eclipse.swt.widgets.Menu;
 
 import java.io.InputStream;
@@ -21,6 +20,7 @@ import des.wangku.operate.standard.dialog.Version;
 import des.wangku.operate.standard.utls.UtilsConsts;
 import des.wangku.operate.standard.utls.UtilsDialogState;
 import des.wangku.operate.standard.utls.UtilsSWTListener;
+import des.wangku.operate.standard.utls.UtilsSWTTray;
 
 import org.eclipse.swt.widgets.Composite;
 
@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Composite;
  * @version 1.0
  * @since jdk1.8
  */
-public class Desktop {
+public final class Desktop {
 	/** 日志 */
 	static Logger logger = Logger.getLogger(Desktop.class);
 	static boolean isAdmin = false;
@@ -97,6 +97,7 @@ public class Desktop {
 			}
 		});
 		Initialization();
+		UtilsSWTTray.initTrayDisplay(shell, display);
 		if (!isAdmin) {
 			compositeMain.dispose();
 			resetMainComposite();
@@ -165,4 +166,5 @@ public class Desktop {
 		if (isAdmin) return "最高管理员";
 		return "管理员";
 	}
+
 }
