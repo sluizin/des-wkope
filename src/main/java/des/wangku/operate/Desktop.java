@@ -16,10 +16,12 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import des.wangku.operate.standard.PV;
+import des.wangku.operate.standard.dialog.RunDialog;
 import des.wangku.operate.standard.dialog.Version;
 import des.wangku.operate.standard.utls.UtilsConsts;
 import des.wangku.operate.standard.utls.UtilsDialogState;
 import des.wangku.operate.standard.utls.UtilsSWTListener;
+import des.wangku.operate.standard.utls.UtilsSWTMessageBox;
 import des.wangku.operate.standard.utls.UtilsSWTTray;
 
 import org.eclipse.swt.widgets.Composite;
@@ -38,7 +40,7 @@ public final class Desktop {
 	static Display display = Display.getDefault();
 	static Shell shell = new Shell(display, SWT.CLOSE | SWT.MIN | SWT.DIALOG_TRIM);
 	static Menu menu = new Menu(shell, SWT.BAR);
-	static Menu menu_1;
+	static Menu menu_List;
 	static MenuItem menuItemCommondList = new MenuItem(menu, SWT.CASCADE);
 	static Composite compositeMain = new Composite(shell, SWT.NONE);
 
@@ -59,9 +61,11 @@ public final class Desktop {
 		UtilsDialogState.changeDialogCenter(shell);
 		menuItemCommondList.setText("任务列表");
 		menuItemCommondList.setEnabled(false);
+		menu_List = new Menu(menuItemCommondList);
+		menuItemCommondList.setMenu(menu_List);
 
-		menu_1 = new Menu(menuItemCommondList);
-		menuItemCommondList.setMenu(menu_1);
+		initializationSetMenu();
+
 		compositeMain.setBounds(0, 0, ACC_width, ACC_height);
 
 		/**
@@ -149,7 +153,47 @@ public final class Desktop {
 	 */
 	static final void Initialization() {
 		Utils.getModelJarList();
-		Utils.remarkMenu(menu_1);
+		Utils.remarkMenu(menu_List);
+	}
+
+	/**
+	 * 修改设置菜单
+	 */
+	static final void initializationSetMenu() {
+		MenuItem set = new MenuItem(menu, SWT.CASCADE);
+		set.setText("设置");
+		set.setEnabled(true);
+		Menu menu_Set = new Menu(set);
+		set.setMenu(menu_Set);
+		MenuItem menuItem = new MenuItem(menu_Set, SWT.CASCADE);
+		menuItem.setText("声音");
+		menuItem.setImage(SWTResourceManager.getImage(Desktop.class, "/images/icon/voice.ico"));
+		Menu menuGroup = new Menu(shell, SWT.DROP_DOWN);
+		menuItem.setMenu(menuGroup);
+		MenuItem m1 = new MenuItem(menuGroup, SWT.CHECK);
+		m1.setSelection(false);
+		m1.setText("提示警告");
+		m1.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event e) {
+				UtilsSWTMessageBox.VOICE_AlERT = m1.getSelection();
+			}
+		});
+		MenuItem m2 = new MenuItem(menuGroup, SWT.CHECK);
+		m2.setSelection(false);
+		m2.setText("确认弹窗");
+		m2.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event e) {
+				UtilsSWTMessageBox.VOICE_CONFIRM = m2.getSelection();
+			}
+		});
+		MenuItem m3 = new MenuItem(menuGroup, SWT.CHECK);
+		m3.setSelection(false);
+		m3.setText("线程结束");
+		m3.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event e) {
+				RunDialog.VOICE_RUNDIALOG = m3.getSelection();
+			}
+		});
 	}
 
 	static final void InitializationProject() {

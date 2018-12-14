@@ -155,6 +155,7 @@ public class Utils {
 				Class<?> cc = Const.extendTaskMap.get(key);
 				Constructor<?> c1 = cc.getDeclaredConstructor(new Class[] { Composite.class });
 				AbstractTask a1 = (AbstractTask) c1.newInstance(new Object[] { compositeMini });//Desktop.compositeMini
+				if (a1.getMenuText() == null) continue;
 				extendTaskMapOrder.put(a1.getMenuText(), cc);
 			}
 		} catch (Exception excep) {

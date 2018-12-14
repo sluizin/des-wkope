@@ -144,6 +144,20 @@ run.doFirst{
     			delete f
             }
       }
+     dir.eachDirMatch(~/^des-wkope-*/){d ->
+            def path = d.path+"\\build\\libs\\"
+            def jarlibsdir = new File(path)
+            jarlibsdir.eachFileMatch(~/^des-wkope-.*\.jar.*/){
+            	f->
+            	println f
+    			delete f
+            }
+            jarlibsdir.eachFileMatch(~/^sysInfo.log/){
+            	f->
+            	println f
+    			delete f
+            }
+      }
 	println '删除所有项目中生成的lib中的jar>>>完成'
     // println "第二种"
     // dir.traverse(type:FileType.DIRECTORIES,nameFilter:~/.*des-wkope-task-[pP].*/) {
