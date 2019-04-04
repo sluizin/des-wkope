@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * 
  * @author Sunjian
@@ -16,7 +16,7 @@ import org.apache.log4j.PropertyConfigurator;
  *
  */
 public class Const {
-	static Logger logger = Logger.getLogger(Const.class);
+	static Logger logger = LoggerFactory.getLogger(Const.class);
 	/** asm查找到的标准的父类 */
 	static final String ACC_StandardTaskClass = "des/wangku/operate/standard/task/AbstractTask";
 	/** 任务列表 */
@@ -44,7 +44,7 @@ public class Const {
 	}
 
 	static {
-		PropertyConfigurator.configure(Const.class.getClassLoader().getResource("log4j.properties"));
+		//PropertyConfigurator.configure(Const.class.getClassLoader().getResource("log4j.properties"));
 	}
 
 }

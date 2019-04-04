@@ -1,6 +1,6 @@
 package des.wangku.operate;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;import org.slf4j.LoggerFactory;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
@@ -15,7 +15,7 @@ import org.objectweb.asm.Opcodes;
  * @since jdk1.8
  */
 public class MQClassVisitor implements ClassVisitor, Opcodes {
-	static Logger logger = Logger.getLogger(MQClassVisitor.class);
+	static Logger logger = LoggerFactory.getLogger(MQClassVisitor.class);
 	String classFile = null;
 
 	@Override

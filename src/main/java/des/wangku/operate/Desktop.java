@@ -8,7 +8,7 @@ import org.eclipse.swt.widgets.Menu;
 
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;import org.slf4j.LoggerFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.MenuItem;
@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Composite;
  */
 public final class Desktop {
 	/** 日志 */
-	static Logger logger = Logger.getLogger(Desktop.class);
+	static Logger logger = LoggerFactory.getLogger(Desktop.class);
 	static boolean isAdmin = false;
 	static final int ACC_width = 900;
 	static final int ACC_height = 550;
@@ -111,11 +111,11 @@ public final class Desktop {
 			shell.open();
 		}
 		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
+			if (display != null && !display.readAndDispatch()) {
 				display.sleep();
 			}
 		}
-		display.dispose();
+		if (display != null) display.dispose();
 	}
 
 	/**

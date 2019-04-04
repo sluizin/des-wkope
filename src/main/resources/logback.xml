@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- For assistance related to logback-translator or configuration -->
+<!-- files in general, please contact the logback user mailing list -->
+<!-- at http://www.qos.ch/mailman/listinfo/logback-user -->
+<!-- -->
+<!-- For professional support please see -->
+<!-- http://www.qos.ch/shop/products/professionalSupport -->
+<!-- -->
+<configuration scan="true" scanPeriod="30 seconds" debug="false">
+	<!-- Errors were reported during translation. -->
+	<!-- Could not find transformer for des.wangku.operate.LogDailyRollingFileAppender -->
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss}%l%n%m%n%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="file" class="des.wangku.operate.LogDailyRollingFileAppender">
+		<File>sysInfo.log</File>
+		<append>true</append>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>sysInfo.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>3</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>1MB</maxFileSize>
+		</triggeringPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<!-- <pattern>%d{yyyy-MM-dd HH:mm:ss}%l%n%m%n%n</pattern> -->
+			<pattern>
+				%n%date{yyyy-MM-dd HH:mm:ss} %level [%thread] %10logger[%file:%line]%n %msg%n
+			</pattern>
+		</layout>
+	</appender>
+
+	<!--myibatis log configure -->
+	<logger name="com.apache.ibatis" level="TRACE" />
+	<logger name="java.sql.PreparedStatement" level="DEBUG" />
+	<logger name="java.sql.Statement" level="info" />
+	<logger name="java.sql.Connection" level="info" />
+	<logger name="java.sql.PreparedStatement" level="info">
+		<appender-ref ref="stdout" />
+	</logger>
+
+
+	<!--ibatis log configure -->
+	<logger name="com.ibatis" level="info" />
+	<logger name="com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate" level="info" />
+	<logger name="com.ibatis.common.jdbc.SimpleDataSource" level="info" />
+	<logger name="com.ibatis.common.jdbc.ScriptRunner" level="info" />
+
+	<logger name="com.gargoylesoftware" level="OFF" />
+	<logger name="com.gargoylesoftware.htmlunit" level="OFF" />
+
+	<logger name="httpclient.wire" level="OFF" />
+
+	<logger name="org.apache.http" level="ERROR" />
+	<logger name="org.apache.commons.httpclient" level="ERROR" />
+	<logger name="org.apache.axis" level="ERROR" />
+	<filter class="ch.qos.logback.classic.filter.LevelFilter">
+		<level>ERROR</level>
+		<onMatch>ACCEPT</onMatch>
+		<onMismatch>DENY</onMismatch>
+	</filter>
+	<root level="debug">
+		<appender-ref ref="stdout" />
+		<appender-ref ref="file" />
+	</root>
+</configuration>

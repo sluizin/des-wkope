@@ -18,7 +18,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.ibatis.session.SqlSession;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;import org.slf4j.LoggerFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
@@ -42,6 +42,7 @@ import des.wangku.operate.standard.dialog.LoadingProgressBar;
 import des.wangku.operate.standard.PV.Env;
 import des.wangku.operate.standard.task.AbstractTask;
 import des.wangku.operate.standard.utls.UtilsPathFile;
+import des.wangku.operate.standard.utls.UtilsSWTMessageBox;
 import des.wangku.operate.standard.utls.UtilsFile;
 
 /**
@@ -51,7 +52,7 @@ import des.wangku.operate.standard.utls.UtilsFile;
  */
 public class Utils {
 
-	static Logger logger = Logger.getLogger(Utils.class);
+	static Logger logger = LoggerFactory.getLogger(Utils.class);
 
 	public static final List<String> getModelJarList() {
 		//logger.debug("System.getProperty(\"user.dir\"):"+System.getProperty("user.dir"));
@@ -123,32 +124,55 @@ public class Utils {
 		if (PV.ACC_ENV == Env.DEV) return "D:/Eclipse/eclipse-oxygen/Workspaces/des-wkope/build/libs/" + Const.ACC_modelpath;
 		URL c = Const.class.getClassLoader().getResource("");
 		//logger.debug(" Config.class.getClassLoader().getResource:" + c);
-		if (c == null) {
-			return UtilsPathFile.getJarBasicPath() + "" + "/" + Const.ACC_modelpath;
-		} else {
-			try {
-				File file = new File(c.toURI().getPath());
-				String filePath = file.getAbsolutePath();//得到windows下的正确路径
-				//logger.debug(" Config.class.getClassLoader().getResource c.toURI().getPath():" + filePath);
-				return filePath + "/" + Const.ACC_modelpath;
-			} catch (URISyntaxException e) {
-				return "";
-			}
+		if (c == null) return UtilsPathFile.getJarBasicPath() + "" + "/" + Const.ACC_modelpath;
+		try {
+			File file = new File(c.toURI().getPath());
+			String filePath = file.getAbsolutePath();//得到windows下的正确路径
+			//logger.debug(" Config.class.getClassLoader().getResource c.toURI().getPath():" + filePath);
+			return filePath + "/" + Const.ACC_modelpath;
+		} catch (URISyntaxException e) {
+			return "";
 		}
 	}
 
+	static final Image taskImage = SWTResourceManager.getImage(Desktop.class, "/images/icon/star.gif");
 	/**
 	 * 任务菜单设置
 	 * @param parent Menu
 	 */
 	static void remarkMenu(Menu parent) {
 		if (parent == null) return;
-		Image taskImage = SWTResourceManager.getImage(Desktop.class, "/images/icon/star.gif");
+		//Image taskImage = SWTResourceManager.getImage(Desktop.class, "/images/icon/star.gif");
 		Composite compositeMini = new Composite(parent.getShell(), SWT.NONE);
 		compositeMini.setEnabled(false);
 		compositeMini.setVisible(false);
 		compositeMini.setBounds(0, 0, 0, 0);
 		/** 排序菜单 */
+		Map<String, ProjectClass> extendTaskMapOrder = new TreeMap<>();
+		try {
+			for (String key : Const.extendTaskMap.keySet()) {
+				Class<?> cc = Const.extendTaskMap.get(key);
+				Constructor<?> c1 = cc.getDeclaredConstructor(new Class[] { Composite.class });
+				AbstractTask a1 = (AbstractTask) c1.newInstance(new Object[] { compositeMini });//Desktop.compositeMini
+				if (a1.getMenuText() == null) continue;
+				if(extendTaskMapOrder.containsKey(a1.getMenuNameHead()))continue;/* 发现同项目前缀，则过滤 */
+				ProjectClass t=new ProjectClass(a1.getMenuNameHead(),a1.getMenuText(),cc);
+				extendTaskMapOrder.put(a1.getMenuNameHead(), t);
+			}
+			
+		} catch (Exception excep) {
+			excep.printStackTrace();
+		}
+		for (String key : extendTaskMapOrder.keySet()) {
+			ProjectClass t=extendTaskMapOrder.get(key);
+			MenuItem menuItem = new MenuItem(parent, SWT.NONE);
+			Class<?> c = t.clazz;
+			menuItem.setText(t.menuText);
+			menuItem.setImage(taskImage);
+			menuItem.addListener(SWT.Selection, getMenuItemListener(c));
+		}
+		
+		/*
 		Map<String, Class<?>> extendTaskMapOrder = new TreeMap<String, Class<?>>();
 		try {
 			for (String key : Const.extendTaskMap.keySet()) {
@@ -162,12 +186,25 @@ public class Utils {
 			excep.printStackTrace();
 		}
 		for (String key : extendTaskMapOrder.keySet()) {
+			logger.debug("key:"+key);
 			MenuItem menuItem = new MenuItem(parent, SWT.NONE);
 			Class<?> c = extendTaskMapOrder.get(key);
 			menuItem.setText(key);
 			menuItem.setImage(taskImage);
 			menuItem.addListener(SWT.Selection, getMenuItemListener(c));
 		}
+		*/
+	}
+	public static class ProjectClass{
+		String menuNameHead=null;
+		String menuText=null;
+		Class<?> clazz=null;
+		public ProjectClass(String menuNameHead,String menuText,Class<?> clazz) {
+			this.menuNameHead=menuNameHead;
+			this.menuText=menuText;
+			this.clazz=clazz;
+		}
+		
 	}
 
 	/**
@@ -186,10 +223,16 @@ public class Utils {
 					ExecutorService pool = Executors.newFixedThreadPool(1);
 					Runnable task = (Runnable) load;//new LoadingProgressBar(Desktop.shell, 0);
 					pool.submit(task);
-					@SuppressWarnings("unused")
 					AbstractTask a2 = (AbstractTask) c2.newInstance(new Object[] { Desktop.compositeMain, SWT.NONE });
 					load.getShell().dispose();
 					pool.shutdown();
+					String error = a2.precondition();
+					if (error != null) {
+						Desktop.compositeMain.dispose();
+						UtilsSWTMessageBox.Alert(Desktop.shell, error);
+						return;
+					}
+					a2.startup();
 					Desktop.repaintMainComposite();
 				} catch (Exception e1) {
 					e1.printStackTrace();

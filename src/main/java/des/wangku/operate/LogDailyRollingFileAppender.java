@@ -2,7 +2,9 @@ package des.wangku.operate;
 
 import java.io.File;
 
-import org.apache.log4j.FileAppender;
+import ch.qos.logback.core.FileAppender;
+
+// import org.apache.log4j.FileAppender;
 
 import des.wangku.operate.standard.PV;
 
@@ -12,12 +14,14 @@ import des.wangku.operate.standard.PV;
  * @version 1.0
  * @since jdk1.8
  */
-public class LogDailyRollingFileAppender extends FileAppender {
+public class LogDailyRollingFileAppender extends FileAppender<Object> {
+	private static final String logPat = "log";
 
 	public void setFile(String file) {
+		PV.Initialization();
 		String path = PV.getJarBasicPath();
 		String fuhao = File.separator;
-		String filepath = path + fuhao + file;
+		String filepath = path + fuhao + logPat + fuhao + file;
 		super.setFile(filepath);
 	}
 }

@@ -5,7 +5,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;import org.slf4j.LoggerFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Text;
 
@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Group;
  */
 public class Login extends Composite {
 	/** 日志 */
-	static Logger logger = Logger.getLogger(Login.class);
+	static Logger logger = LoggerFactory.getLogger(Login.class);
 	Group group = new Group(this, SWT.NONE);
 	Label label_1 = new Label(group, SWT.NONE);
 	Label label = new Label(group, SWT.NONE);
