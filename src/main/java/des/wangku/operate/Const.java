@@ -8,25 +8,25 @@ import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
- * 
  * @author Sunjian
  * @version 1.0
  * @since jdk1.8
- *
  */
 public class Const {
 	static Logger logger = LoggerFactory.getLogger(Const.class);
-	/** asm查找到的标准的父类 */
-	static final String ACC_StandardTaskClass = "des/wangku/operate/standard/task/AbstractTask";
+
 	/** 任务列表 */
-	static final Map<String, Class<?>> extendTaskMap = new TreeMap<String, Class<?>>();
+	static final Map<String, TaskObjectClass> ExtendTaskMap = new TreeMap<>();
+	
 	/** 属性集，主要是从config_zh_CN.properties中读取的 */
 	static final Properties ACC_Properties = getPropertiesConfig();
 	/** 项目目录 */
 	static final String ACC_modelpath = "model";
-	
-	static final boolean isLinkUserDB=false;
+
+	static final boolean isLinkUserDB = false;
+
 	/**
 	 * 从config配置文件中读取配置对象
 	 * @return Properties

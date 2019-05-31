@@ -4,15 +4,15 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
  * Contributors:
- * Google, Inc. - initial API and implementation
+ *    Google, Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.wb.swt;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,9 +47,9 @@ public class SWTResourceManager {
 	//
 	////////////////////////////////////////////////////////////////////////////
 	private static Map<RGB, Color> m_colorMap = new HashMap<RGB, Color>();
-
 	/**
 	 * Returns the system {@link Color} matching the specific ID.
+	 * 
 	 * @param systemColorID
 	 *            the ID value for the color
 	 * @return the system {@link Color} matching the specific ID
@@ -58,9 +58,9 @@ public class SWTResourceManager {
 		Display display = Display.getCurrent();
 		return display.getSystemColor(systemColorID);
 	}
-
 	/**
 	 * Returns a {@link Color} given its red, green and blue component values.
+	 * 
 	 * @param r
 	 *            the red component of the color
 	 * @param g
@@ -72,9 +72,9 @@ public class SWTResourceManager {
 	public static Color getColor(int r, int g, int b) {
 		return getColor(new RGB(r, g, b));
 	}
-
 	/**
 	 * Returns a {@link Color} given its RGB value.
+	 * 
 	 * @param rgb
 	 *            the {@link RGB} value of the color
 	 * @return the {@link Color} matching the RGB value
@@ -88,7 +88,6 @@ public class SWTResourceManager {
 		}
 		return color;
 	}
-
 	/**
 	 * Dispose of all the cached {@link Color}'s.
 	 */
@@ -98,7 +97,6 @@ public class SWTResourceManager {
 		}
 		m_colorMap.clear();
 	}
-
 	////////////////////////////////////////////////////////////////////////////
 	//
 	// Image
@@ -108,9 +106,9 @@ public class SWTResourceManager {
 	 * Maps image paths to images.
 	 */
 	private static Map<String, Image> m_imageMap = new HashMap<String, Image>();
-
 	/**
 	 * Returns an {@link Image} encoded by the specified {@link InputStream}.
+	 * 
 	 * @param stream
 	 *            the {@link InputStream} encoding the image data
 	 * @return the {@link Image} encoded by the specified input stream
@@ -119,15 +117,17 @@ public class SWTResourceManager {
 		try {
 			Display display = Display.getCurrent();
 			ImageData data = new ImageData(stream);
-			if (data.transparentPixel > 0) { return new Image(display, data, data.getTransparencyMask()); }
+			if (data.transparentPixel > 0) {
+				return new Image(display, data, data.getTransparencyMask());
+			}
 			return new Image(display, data);
 		} finally {
 			stream.close();
 		}
 	}
-
 	/**
 	 * Returns an {@link Image} stored in the file at the specified path.
+	 * 
 	 * @param path
 	 *            the path to the image file
 	 * @return the {@link Image} stored in the file at the specified path
@@ -145,9 +145,9 @@ public class SWTResourceManager {
 		}
 		return image;
 	}
-
 	/**
 	 * Returns an {@link Image} stored in the file at the specified path relative to the specified class.
+	 * 
 	 * @param clazz
 	 *            the {@link Class} relative to which to find the image
 	 * @param path
@@ -168,9 +168,7 @@ public class SWTResourceManager {
 		}
 		return image;
 	}
-
 	private static final int MISSING_IMAGE_SIZE = 10;
-
 	/**
 	 * @return the small {@link Image} that can be used as placeholder for missing image.
 	 */
@@ -184,7 +182,6 @@ public class SWTResourceManager {
 		//
 		return image;
 	}
-
 	/**
 	 * Style constant for placing decorator image in top left corner of base image.
 	 */
@@ -210,9 +207,9 @@ public class SWTResourceManager {
 	 */
 	@SuppressWarnings("unchecked")
 	private static Map<Image, Map<Image, Image>>[] m_decoratedImageMap = new Map[LAST_CORNER_KEY];
-
 	/**
 	 * Returns an {@link Image} composed of a base image decorated by another image.
+	 * 
 	 * @param baseImage
 	 *            the base {@link Image} that should be decorated
 	 * @param decorator
@@ -222,9 +219,9 @@ public class SWTResourceManager {
 	public static Image decorateImage(Image baseImage, Image decorator) {
 		return decorateImage(baseImage, decorator, BOTTOM_RIGHT);
 	}
-
 	/**
 	 * Returns an {@link Image} composed of a base image decorated by another image.
+	 * 
 	 * @param baseImage
 	 *            the base {@link Image} that should be decorated
 	 * @param decorator
@@ -234,7 +231,9 @@ public class SWTResourceManager {
 	 * @return the resulting decorated {@link Image}
 	 */
 	public static Image decorateImage(final Image baseImage, final Image decorator, final int corner) {
-		if (corner <= 0 || corner >= LAST_CORNER_KEY) { throw new IllegalArgumentException("Wrong decorate corner"); }
+		if (corner <= 0 || corner >= LAST_CORNER_KEY) {
+			throw new IllegalArgumentException("Wrong decorate corner");
+		}
 		Map<Image, Map<Image, Image>> cornerDecoratedImageMap = m_decoratedImageMap[corner];
 		if (cornerDecoratedImageMap == null) {
 			cornerDecoratedImageMap = new HashMap<Image, Map<Image, Image>>();
@@ -270,7 +269,6 @@ public class SWTResourceManager {
 		}
 		return result;
 	}
-
 	/**
 	 * Dispose all of the cached {@link Image}'s.
 	 */
@@ -296,7 +294,6 @@ public class SWTResourceManager {
 			}
 		}
 	}
-
 	////////////////////////////////////////////////////////////////////////////
 	//
 	// Font
@@ -310,9 +307,9 @@ public class SWTResourceManager {
 	 * Maps fonts to their bold versions.
 	 */
 	private static Map<Font, Font> m_fontToBoldFontMap = new HashMap<Font, Font>();
-
 	/**
 	 * Returns a {@link Font} based on its name, height and style.
+	 * 
 	 * @param name
 	 *            the name of the font
 	 * @param height
@@ -324,10 +321,10 @@ public class SWTResourceManager {
 	public static Font getFont(String name, int height, int style) {
 		return getFont(name, height, style, false, false);
 	}
-
 	/**
 	 * Returns a {@link Font} based on its name, height and style. Windows-specific strikeout and underline
 	 * flags are also supported.
+	 * 
 	 * @param name
 	 *            the name of the font
 	 * @param size
@@ -366,9 +363,9 @@ public class SWTResourceManager {
 		}
 		return font;
 	}
-
 	/**
 	 * Returns a bold version of the given {@link Font}.
+	 * 
 	 * @param baseFont
 	 *            the {@link Font} for which a bold version is desired
 	 * @return the bold version of the given {@link Font}
@@ -383,7 +380,6 @@ public class SWTResourceManager {
 		}
 		return font;
 	}
-
 	/**
 	 * Dispose all of the cached {@link Font}'s.
 	 */
@@ -399,7 +395,6 @@ public class SWTResourceManager {
 		}
 		m_fontToBoldFontMap.clear();
 	}
-
 	////////////////////////////////////////////////////////////////////////////
 	//
 	// Cursor
@@ -409,9 +404,9 @@ public class SWTResourceManager {
 	 * Maps IDs to cursors.
 	 */
 	private static Map<Integer, Cursor> m_idToCursorMap = new HashMap<Integer, Cursor>();
-
 	/**
 	 * Returns the system cursor matching the specific ID.
+	 * 
 	 * @param id
 	 *            int The ID value for the cursor
 	 * @return Cursor The system cursor matching the specific ID
@@ -425,7 +420,6 @@ public class SWTResourceManager {
 		}
 		return cursor;
 	}
-
 	/**
 	 * Dispose all of the cached cursors.
 	 */
@@ -435,7 +429,6 @@ public class SWTResourceManager {
 		}
 		m_idToCursorMap.clear();
 	}
-
 	////////////////////////////////////////////////////////////////////////////
 	//
 	// General
@@ -450,19 +443,5 @@ public class SWTResourceManager {
 		disposeImages();
 		disposeFonts();
 		disposeCursors();
-	}
-
-	public static Image getImage(URL url) {
-		Image image = m_imageMap.get(url.toString());
-		if (image == null) {
-			try {
-				image = getImage(url.openStream());
-				m_imageMap.put(url.toString(), image);
-			} catch (Exception e) {
-				image = getMissingImage();
-				m_imageMap.put(url.toString(), image);
-			}
-		}
-		return image;
 	}
 }

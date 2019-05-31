@@ -4,11 +4,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Menu;
 
 import java.io.InputStream;
 
-import org.slf4j.Logger;import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.MenuItem;
@@ -25,6 +28,9 @@ import des.wangku.operate.standard.utls.UtilsSWTMessageBox;
 import des.wangku.operate.standard.utls.UtilsSWTTray;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.CoolBar;
+import org.eclipse.swt.widgets.CoolItem;
 
 /**
  * @author Sunjian
@@ -43,6 +49,9 @@ public final class Desktop {
 	static Menu menu_List;
 	static MenuItem menuItemCommondList = new MenuItem(menu, SWT.CASCADE);
 	static Composite compositeMain = new Composite(shell, SWT.NONE);
+	static Composite CompositeStates = null;
+	static Composite CompositeStatesInsert = null;
+	static Label insertlabel = null;
 
 	/**
 	 * Launch the application.
@@ -55,7 +64,7 @@ public final class Desktop {
 		InitializationProject();
 		shell.setImage(SWTResourceManager.getImage(Desktop.class, "/images/icon/exit.gif"));
 		shell.setMinimumSize(new Point(120, 27));
-		shell.setSize(912, 610);
+		shell.setSize(912, 642);
 		shell.setText(UtilsConsts.ACC_ProjectTitleDefault);
 		shell.setMenuBar(menu);
 		UtilsDialogState.changeDialogCenter(shell);
@@ -66,7 +75,7 @@ public final class Desktop {
 
 		initializationSetMenu();
 
-		compositeMain.setBounds(0, 0, ACC_width, ACC_height);
+		compositeMain.setBounds(0, 0, 900, 550);
 
 		/**
 		 * 主框架中的鼠标右键
@@ -102,12 +111,13 @@ public final class Desktop {
 		});
 		Initialization();
 		UtilsSWTTray.initTrayDisplay(shell, display);
+		//initializationStatus();
 		if (!isAdmin) {
 			compositeMain.dispose();
 			resetMainComposite();
 			new Login(compositeMain, SWT.NONE);
-			compositeMain.setBounds(0, 0, ACC_width, ACC_height);
 			compositeMain.setLayout(new FillLayout());
+			compositeMain.setBounds(0, 0, ACC_width, ACC_height);
 			shell.open();
 		}
 		while (!shell.isDisposed()) {
@@ -118,22 +128,35 @@ public final class Desktop {
 		if (display != null) display.dispose();
 	}
 
+	@SuppressWarnings("unused")
+	static final void initializationStatus() {
+		CoolBar coolBar = new CoolBar(shell, SWT.FLAT);
+		coolBar.setBounds(0, 558, 150, 30);
+		CoolItem coolItem = new CoolItem(coolBar, SWT.NONE);
+		coolItem.setSize(100, 20);
+		ToolBar toolbar = new ToolBar(coolBar, SWT.NONE);
+		ToolItem getItem = new ToolItem(toolbar, SWT.PUSH);
+		getItem.setText("取得");
+		coolItem.setControl(toolbar);
+		CoolItem coolItem_1 = new CoolItem(coolBar, SWT.NONE);
+		CoolItem coolItem_2 = new CoolItem(coolBar, SWT.NONE);
+	}
+
 	/**
 	 * 重置容器
 	 */
 	static final void resetMainComposite() {
 		compositeMain = new Composite(shell, SWT.NONE);
-		compositeMain.redraw(0, 0, ACC_width, ACC_height, true);
 		compositeMain.setLayout(new FillLayout());
-		//setMenu();
+		compositeMain.redraw(0, 0, ACC_width, ACC_height, true);
 	}
 
 	/**
 	 * 设置完容器后刷新
 	 */
 	static final void repaintMainComposite() {
-		compositeMain.setBounds(0, 0, ACC_width, ACC_height);
 		compositeMain.setLayout(new FillLayout());
+		compositeMain.setBounds(0, 0, ACC_width, ACC_height);
 	}
 
 	/**
@@ -196,10 +219,11 @@ public final class Desktop {
 		});
 	}
 
+	/**
+	 * 初始化运营结构
+	 */
 	static final void InitializationProject() {
-		/** 初始化运营结构 */
 		Utils.InitOperaOrg();
-
 	}
 
 	/**
@@ -210,5 +234,4 @@ public final class Desktop {
 		if (isAdmin) return "最高管理员";
 		return "管理员";
 	}
-
 }
