@@ -15,9 +15,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 import des.wangku.operate.model.Opc_user;
-import des.wangku.operate.standard.PV;
-import des.wangku.operate.standard.PV.Env;
+import des.wangku.operate.standard.Pv;
+import des.wangku.operate.standard.Pv.Env;
 import des.wangku.operate.standard.composite.ImageCanvas;
+import des.wangku.operate.standard.desktop.DesktopConst;
 import des.wangku.operate.standard.task.AbstractTask;
 import des.wangku.operate.standard.utls.UtilsDialogState;
 import des.wangku.operate.standard.utls.UtilsSWTMessageBox;
@@ -75,7 +76,7 @@ public class Login extends Composite {
 	public Login(Composite parent, int style) {
 		super(parent, style);
 		this.setBounds(0, 0, AbstractTask.ACC_CpsWidth, AbstractTask.ACC_CpsHeight);
-		if (PV.ACC_ENV == Env.DEV) {
+		if (Pv.ACC_ENV == Env.DEV) {
 			textUsername.setText(getValueSpace("username"));
 			textPassword.setText(getValueSpace("password"));
 		}
@@ -173,7 +174,7 @@ public class Login extends Composite {
 		InputStream inputStream = vCode.getInputStream();
 		vcode = vCode.getCode();
 		validatecanvas.setImage(inputStream);
-		if (PV.ACC_ENV == Env.DEV) {
+		if (Pv.ACC_ENV == Env.DEV) {
 			validateText.setText(vcode);
 			validatestate.setImage(ImageYES);
 			isvalidate=true;
@@ -186,12 +187,18 @@ public class Login extends Composite {
 	 * @param parent Composite
 	 */
 	void loginchk(Composite parent) {
+		if (Pv.ACC_ENV != Env.DEV) 
 		UtilsSWTMessageBox.Alert(parent.getShell(), "登陆成功", "欢迎[" + Desktop.getAdminLevel() + "]进入系统!");
 		Shell s = submit.getShell();
 		Desktop.menuItemCommondList.setEnabled(true);
 		submit.getParent().dispose();
 		s.setLayout(new FillLayout());
 		s.layout();
+		if (Pv.ACC_ENV == Env.DEV) {
+			boolean isAutoLoad=DesktopConst.dprop.getProPropBoolean("sys_autoload", true);
+			if(isAutoLoad)
+			Utils.autoLoadTask();			
+		}
 	}
 
 	/**
@@ -220,6 +227,7 @@ public class Login extends Composite {
 	 * @return boolean
 	 */
 	boolean islogin() {
+		if (Pv.ACC_ENV == Env.DEV) return true;
 		String username = textUsername.getText().trim();
 		String password = textPassword.getText().trim();
 		if (username.length() == 0) {

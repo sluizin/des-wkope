@@ -1,50 +1,37 @@
 package des.wangku.operate;
 
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.wb.swt.SWTResourceManager;
-import org.objectweb.asm.ClassReader;
 import com.alibaba.fastjson.JSON;
 import des.wangku.operate.dao.Opc_contentMapper;
 import des.wangku.operate.dao.Opc_userMapper;
 import des.wangku.operate.model.Opc_content;
 import des.wangku.operate.model.Opc_user;
-import des.wangku.operate.standard.PV;
 import des.wangku.operate.standard.TaskConsts;
-import des.wangku.operate.standard.asm.MQClassVisitor;
 import des.wangku.operate.standard.database.MainSource;
+import des.wangku.operate.standard.desktop.LoadTaskUtils;
+import des.wangku.operate.standard.desktop.TaskObjectClass;
 import des.wangku.operate.standard.dialog.LoadingProgressBar;
-import des.wangku.operate.standard.PV.Env;
 import des.wangku.operate.standard.task.AbstractTask;
-import des.wangku.operate.standard.utls.UtilsPathFile;
 import des.wangku.operate.standard.utls.UtilsSWTMessageBox;
 import des.wangku.operate.standard.utls.UtilsFile;
-
+import static des.wangku.operate.standard.desktop.DesktopConst.ExtendTaskMap;
 /**
  * @author Sunjian
  * @version 1.0
@@ -53,98 +40,6 @@ import des.wangku.operate.standard.utls.UtilsFile;
 public class Utils {
 	/** 日志 */
 	static Logger logger = LoggerFactory.getLogger(Utils.class);
-
-	public static final List<String> getModelJarList() {
-		String path = getModelJarBasicPath();
-		File file = new File(path);
-		if (!file.exists()) file.mkdirs();
-		List<String> jarList = getJarList(path);
-		for (int i = 0; i < jarList.size(); i++) {
-			String jarPath = jarList.get(i);
-			isSearchJar(jarPath);
-		}
-		return jarList;
-	}
-
-	/**
-	 * @param jarPath String
-	 * @return boolean
-	 */
-	@SuppressWarnings("resource")
-	static final boolean isSearchJar(String jarPath) {
-		try {
-			JarFile jarFile = new JarFile(jarPath);
-			Enumeration<JarEntry> entrys = jarFile.entries();
-			while (entrys.hasMoreElements()) {
-				JarEntry jarEntry = entrys.nextElement();
-				if (jarEntry.isDirectory() || (!jarEntry.getName().endsWith(".class"))) continue;
-				//logger.debug(">>:" + jarEntry.getName());
-				InputStream input = jarFile.getInputStream(jarEntry);
-				ClassReader cr = new ClassReader(input);
-				MQClassVisitor mqcv = new MQClassVisitor();
-				cr.accept(mqcv, 0);
-				cr = null;
-				Map<String, Object> map = mqcv.getMap();
-				if (mqcv.getClassFile() == null) continue;
-				if (!mqcv.isStructure1()) {
-					logger.debug("[" + jarEntry.getName() + "]缺少构造函数 参数:(Lorg/eclipse/swt/widgets/Composite;)");
-					continue;
-				}
-				if (!mqcv.isStructure2()) {
-					logger.debug("[" + jarEntry.getName() + "]缺少构造函数 参数:(Lorg/eclipse/swt/widgets/Composite;I)");
-					continue;
-				}
-				URL url1 = new URL("file:" + jarPath);
-				URLClassLoader myClassLoader = new URLClassLoader(new URL[] { url1 }, Thread.currentThread().getContextClassLoader());
-				Class<?> myClass1 = myClassLoader.loadClass(mqcv.getClassFile());
-
-				TaskObjectClass ff = new TaskObjectClass();
-				ff.classFile = mqcv.getClassFile();
-				ff.map = map;
-				ff.myClass = myClass1;
-				ff.name = ff.getAnnoName();
-				ff.expire = ff.getAnnoExpire();
-				ff.group = ff.getAnnoGroup();
-				Const.ExtendTaskMap.put(mqcv.getClassFile(), ff);
-
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		if (Const.ExtendTaskMap.isEmpty()) return false;
-		return true;
-	}
-
-	/**
-	 * 得到某个目录里所有的jar文件
-	 * @param path String
-	 * @return List&lt;String&gt;
-	 */
-	public static final List<String> getJarList(String path) {
-		List<String> jarList = new ArrayList<String>();
-		UtilsPathFile.getJarList(jarList, path);
-		return jarList;
-	}
-
-	/**
-	 * 得到model绝对目录
-	 * @return String
-	 */
-	public static final String getModelJarBasicPath() {
-		if (PV.ACC_ENV == Env.DEV) return "D:/Eclipse/eclipse-oxygen/Workspaces/des-wkope/build/libs/" + Const.ACC_modelpath;
-		URL c = Const.class.getClassLoader().getResource("");
-		//logger.debug(" Config.class.getClassLoader().getResource:" + c);
-		if (c == null) return UtilsPathFile.getJarBasicPath() + "" + "/" + Const.ACC_modelpath;
-		try {
-			File file = new File(c.toURI().getPath());
-			String filePath = file.getAbsolutePath();//得到windows下的正确路径
-			return filePath + "/" + Const.ACC_modelpath;
-		} catch (URISyntaxException e) {
-			return "";
-		}
-	}
-
-	static final Image taskImage = SWTResourceManager.getImage(Desktop.class, "/images/icon/star.gif");
 
 	/**
 	 * 任务菜单设置
@@ -166,33 +61,20 @@ public class Utils {
 	 * @param parent Menu
 	 */
 	private static final void sortMenu2(Composite mini, Menu parent) {
-		Map<String, TaskObjectClass> extendTaskMapOrder = new TreeMap<>();
-		try {
-			for (String key : Const.ExtendTaskMap.keySet()) {
-				TaskObjectClass ff = Const.ExtendTaskMap.get(key);
-				Constructor<?> c1 = ff.myClass.getDeclaredConstructor(new Class[] { Composite.class });
-				AbstractTask a1 = (AbstractTask) c1.newInstance(new Object[] { mini });
-				//a1.setAnnoProjectMap(ff.map);
-				ff.identifier = a1.getIdentifierAll();
-				ff.name = a1.getProjectNameAll();
-				ff.menuText = a1.getMenuText();
-				ff.expire = a1.getExpireAll();
-				ff.group = a1.getGroupAll();
-				ff.effective=a1.getEffective();
-				if (ff.getMenuText() == null || ff.getMenuText().length() == 0) continue;
-				if (extendTaskMapOrder.containsKey(ff.getMenuText())) continue;// 发现同项目前缀，则过滤
-				extendTaskMapOrder.put(ff.getMenuText(), ff);
-			}
-
-		} catch (Exception excep) {
-			excep.printStackTrace();
+		LoadTaskUtils.filterTaskObject(mini);
+		for (String key : ExtendTaskMap.keySet()) {
+			TaskObjectClass t = ExtendTaskMap.get(key);
+			t.setMenu(Desktop.menu);
 		}
-		makeGroup(parent,extendTaskMapOrder);
-		for (String key : extendTaskMapOrder.keySet()) {
-			TaskObjectClass t = extendTaskMapOrder.get(key);
-			if (t.group != null && t.group.length() > 0) continue;
+		makeGroup(parent,ExtendTaskMap);
+		for (String key : ExtendTaskMap.keySet()) {
+			TaskObjectClass t = ExtendTaskMap.get(key);
+			if (t.getGroup() != null && t.getGroup().length() > 0) continue;
 			addMenuItem(parent,t);
-			logger.warn(t.group + "\t" + t.identifier + "\t" + t.name + "\t" + t.expire + "\t\t" + t.getMenuText());
+			logger.warn(t.getGroup() + "\t" + 
+			t.getIdentifier() + "\t" + 
+					t.getName() + "\t" + 
+			t.isExpire() + "\t\t" + t.getMenuText());
 			//logger.warn(t.toString());
 		}
 	}
@@ -206,17 +88,18 @@ public class Utils {
 		MenuItem mi = new MenuItem(parent, SWT.NONE);
 		String name = t.getMenuText();
 		String state="";
-		if (t.expire) {
+		if (t.isExpire()) {
 			mi.setEnabled(false);
 			state="[已过期]";
 		}
-		if(!t.effective) {
+		if(!t.isEffective()) {
 			mi.setEnabled(false);
 			state="[已超期]";
 		}
 		mi.setText(name+state);
-		mi.setImage(taskImage);
+		mi.setImage(Const.taskImage);
 		mi.addListener(SWT.Selection, getMenuItemListener(t));
+		mi.setID(t.getId());
 		return mi;
 	}
 	/**
@@ -228,14 +111,14 @@ public class Utils {
 		Map<String, List<TaskObjectClass>> newmap = new TreeMap<>();
 		for (String key : map.keySet()) {
 			TaskObjectClass t = map.get(key);
-			if (t.group == null || t.group.length() == 0) continue;
-			if (!newmap.containsKey(t.group)) newmap.put(t.group, new ArrayList<>());
-			newmap.get(t.group).add(t);
+			if (t.getGroup() == null || t.getGroup().length() == 0) continue;
+			if (!newmap.containsKey(t.getGroup())) newmap.put(t.getGroup(), new ArrayList<>());
+			newmap.get(t.getGroup()).add(t);
 		}
 		for (String key : newmap.keySet()) {
 			MenuItem menuItem = new MenuItem(parent, SWT.CASCADE);
 			menuItem.setText(key);
-			menuItem.setImage(SWTResourceManager.getImage(Desktop.class, "/images/icon/key_list.gif"));
+			menuItem.setImage(Const.taskGroupImage);
 			Menu menuGroup = new Menu(parent.getShell(), SWT.DROP_DOWN);
 			menuItem.setMenu(menuGroup);
 			List<TaskObjectClass> list = newmap.get(key);
@@ -254,38 +137,58 @@ public class Utils {
 	private static Listener getMenuItemListener(TaskObjectClass toc) {
 		Listener t = new Listener() {
 			public void handleEvent(Event e) {
-				try {
-					Desktop.compositeMain.dispose();
-					Desktop.resetMainComposite();
-					Constructor<?> c2 = toc.myClass.getDeclaredConstructor(new Class[] { Composite.class, int.class });
-					LoadingProgressBar load = new LoadingProgressBar(Desktop.shell, 0);
-					ExecutorService pool = Executors.newFixedThreadPool(1);
-					Runnable task = (Runnable) load;//new LoadingProgressBar(Desktop.shell, 0);
-					pool.submit(task);
-					AbstractTask a2 = (AbstractTask) c2.newInstance(new Object[] { Desktop.compositeMain, SWT.NONE });
-					//a2.setAnnoProjectMap(c.map);
-					load.getShell().dispose();
-					pool.shutdown();
-					String error = a2.precondition();
-					if (error != null) {
-						Desktop.compositeMain.dispose();
-						UtilsSWTMessageBox.Alert(Desktop.shell, error);
-						return;
-					}
-					a2.startup();
-					Desktop.repaintMainComposite();
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+				loadTaskObject(toc);
 			}
 		};
 		return t;
+	}
+	/**
+	 * 调取TaskObjectClass对象
+	 * @param toc TaskObjectClass
+	 */
+	static final void loadTaskObject(TaskObjectClass toc) {
+		if(toc==null)return;
+		try {
+			Desktop.compositeMain.dispose();
+			Desktop.resetMainComposite();
+			Constructor<?> c2 = toc.getMyClass().getDeclaredConstructor(new Class[] { Composite.class, int.class });
+			LoadingProgressBar load = new LoadingProgressBar(Desktop.shell, 0);
+			ExecutorService pool = Executors.newFixedThreadPool(1);
+			Runnable task = (Runnable) load;//new LoadingProgressBar(Desktop.shell, 0);
+			pool.submit(task);
+			AbstractTask a2 = (AbstractTask) c2.newInstance(new Object[] { Desktop.compositeMain, SWT.NONE });
+			//a2.setAnnoProjectMap(c.map);
+			load.getShell().dispose();
+			pool.shutdown();
+			String error = a2.precondition();
+			if (error != null) {
+				Desktop.compositeMain.dispose();
+				UtilsSWTMessageBox.Alert(Desktop.shell, error);
+				return;
+			}
+			a2.startup();
+			a2.setBaseTaskTOC(toc);
+			a2.startupProject();
+			Desktop.repaintMainComposite();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
+	}
+	/**
+	 * 自动调用最新的自动装载的工程
+	 */
+	static final void autoLoadTask() {
+		TaskObjectClass e=LoadTaskUtils.getNewestAutoLoadTask();
+		if(e==null)	return;
+		logger.debug("autoLoadTask:"+e.toString());
+		loadTaskObject(e);
 	}
 
 	/**
 	 * 初始化运营中心组织结构信息
 	 */
-	static void InitOperaOrg() {
+	static final void initOperaOrg() {
 		String content = getContentFromDB();
 		if (content == null) {
 			logger.debug("des-wkope-task-opera-org Originate from the Local document");

@@ -1,7 +1,11 @@
+框架信息:
+	现只支持JDK8(因为使用了Lambda，所以必须在jdk8以上框架运行)
 基础信息:
 	容器抽象:des.wangku.operate.standard.task.AbstractTask
 	容器宽高:900 * 550
+	配置目录:/config
+	日志目录:/log
 	模块目录:/model
 	输出目录:/output
 1.01版本:
-	主平台添加线程运行环境。
+	新加自定义控件MultiTree，用于显示树型。对Tree控件进行二次开发。

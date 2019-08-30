@@ -18,7 +18,9 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.wb.swt.SWTResourceManager;
 
-import des.wangku.operate.standard.PV;
+import des.wangku.operate.standard.Pv;
+import des.wangku.operate.standard.desktop.DesktopUtils;
+import des.wangku.operate.standard.desktop.LoadTaskUtils;
 import des.wangku.operate.standard.dialog.RunDialog;
 import des.wangku.operate.standard.dialog.Version;
 import des.wangku.operate.standard.utls.UtilsConsts;
@@ -33,6 +35,7 @@ import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
 
 /**
+ * 桌面主程序
  * @author Sunjian
  * @version 1.0
  * @since jdk1.8
@@ -45,12 +48,15 @@ public final class Desktop {
 	static final int ACC_height = 550;
 	static Display display = Display.getDefault();
 	static Shell shell = new Shell(display, SWT.CLOSE | SWT.MIN | SWT.DIALOG_TRIM);
+	/** 窗体顶部菜单 */
 	static Menu menu = new Menu(shell, SWT.BAR);
+	/** 具体的任务菜单 */
 	static Menu menu_List;
+	/** 窗体第一列菜单 */
 	static MenuItem menuItemCommondList = new MenuItem(menu, SWT.CASCADE);
 	static Composite compositeMain = new Composite(shell, SWT.NONE);
-	static Composite CompositeStates = null;
-	static Composite CompositeStatesInsert = null;
+	static Composite compositeStates = null;
+	static Composite compositeStatesInsert = null;
 	static Label insertlabel = null;
 
 	/**
@@ -59,7 +65,7 @@ public final class Desktop {
 	 */
 	public static void main(String[] args) {
 		/** 环境初始化 */
-		PV.Initialization();
+		Pv.Initialization();
 		/** 初始化工程信息 */
 		InitializationProject();
 		shell.setImage(SWTResourceManager.getImage(Desktop.class, "/images/icon/exit.gif"));
@@ -106,7 +112,7 @@ public final class Desktop {
 		menuItem_exit.setImage(SWTResourceManager.getImage(Desktop.class, "/images/icon/exist.gif"));
 		menuItem_exit.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
-				System.exit(0);
+				DesktopUtils.existProject(compositeMain);
 			}
 		});
 		Initialization();
@@ -146,6 +152,7 @@ public final class Desktop {
 	 * 重置容器
 	 */
 	static final void resetMainComposite() {
+		//MainDesktopComposite.resetMainComposite(shell,compositeMain, ACC_width, ACC_height);
 		compositeMain = new Composite(shell, SWT.NONE);
 		compositeMain.setLayout(new FillLayout());
 		compositeMain.redraw(0, 0, ACC_width, ACC_height, true);
@@ -155,6 +162,7 @@ public final class Desktop {
 	 * 设置完容器后刷新
 	 */
 	static final void repaintMainComposite() {
+		//MainDesktopComposite.repaintMainComposite(compositeMain, ACC_width, ACC_height);
 		compositeMain.setLayout(new FillLayout());
 		compositeMain.setBounds(0, 0, ACC_width, ACC_height);
 	}
@@ -175,7 +183,7 @@ public final class Desktop {
 	 * 初始化
 	 */
 	static final void Initialization() {
-		Utils.getModelJarList();
+		LoadTaskUtils.getModelJarList();
 		Utils.remarkMenu(menu_List);
 	}
 
@@ -223,7 +231,7 @@ public final class Desktop {
 	 * 初始化运营结构
 	 */
 	static final void InitializationProject() {
-		Utils.InitOperaOrg();
+		Utils.initOperaOrg();
 	}
 
 	/**

@@ -2,29 +2,36 @@ package des.wangku.operate;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
 
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * 常量池
  * @author Sunjian
  * @version 1.0
  * @since jdk1.8
  */
 public class Const {
+	/* 日志 */
 	static Logger logger = LoggerFactory.getLogger(Const.class);
 
-	/** 任务列表 */
-	static final Map<String, TaskObjectClass> ExtendTaskMap = new TreeMap<>();
-	
 	/** 属性集，主要是从config_zh_CN.properties中读取的 */
 	static final Properties ACC_Properties = getPropertiesConfig();
-	/** 项目目录 */
-	static final String ACC_modelpath = "model";
 
+	/** 桌面类 */
+	static final Class<?> ACC_DesktopClazz = Desktop.class;
+
+	/** 任务菜单前的图标 */
+	static final Image taskImage = SWTResourceManager.getImage(Desktop.class, "/images/icon/star.gif");
+
+	/** 任务数组前的图标 */
+	static final Image taskGroupImage = SWTResourceManager.getImage(Desktop.class, "/images/icon/key_list.gif");
+
+	/** 是否连接用户数据库 */
 	static final boolean isLinkUserDB = false;
 
 	/**
