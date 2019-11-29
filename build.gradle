@@ -63,11 +63,11 @@ jar {
 	println '>>>>>>>>>>>>>>>>jar'
     manifest {  
         attributes (
-        		'Manifest-Version':version, 
-        		'Implementation-Title': 'des-wkope',  
-                'Implementation-Version': version,  
-                'Created-By': vendor,  
-                'Main-Class': 'des.wangku.operate.Desktop' 
+        		"Manifest-Version":version, 
+        		"Implementation-Title": "des-wkope",  
+                "Implementation-Version": version,  
+                "Created-By": vendor,  
+                "Main-Class": "des.wangku.operate.Desktop" 
         )  
     }
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -102,24 +102,28 @@ run.doFirst{
      dir.eachDirMatch(~/^des-wkope-task-.*/){d ->
             def path = d.path+"\\build\\libs\\"
             def jarlibsdir = new File(path)
-            jarlibsdir.eachFileMatch(~/^des-wkope-task-[pP].*\.jar.*/){
-            	f->
-            	println f
-    			delete f
+            if(jarlibsdir.exists()){
+	            jarlibsdir.eachFileMatch(~/^des-wkope-task-[pP].*\.jar.*/){
+	            	f->
+	            	println f
+	    			delete f
+	            }
             }
       }
      dir.eachDirMatch(~/^des-wkope-*/){d ->
             def path = d.path+"\\build\\libs\\"
             def jarlibsdir = new File(path)
-            jarlibsdir.eachFileMatch(~/^des-wkope-.*\.jar.*/){
-            	f->
-            	println f
-    			delete f
-            }
-            jarlibsdir.eachFileMatch(~/^sysInfo.log/){
-            	f->
-            	println f
-    			delete f
+            if(jarlibsdir.exists()){
+	            jarlibsdir.eachFileMatch(~/^des-wkope-.*\.jar.*/){
+	            	f->
+	            	println f
+	    			delete f
+	            }
+	            jarlibsdir.eachFileMatch(~/^sysInfo.log/){
+	            	f->
+	            	println f
+	    			delete f
+	            }            
             }
       }
 	println '删除所有项目中生成的lib中的jar>>>完成'

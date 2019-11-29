@@ -16,14 +16,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.wb.swt.SWTResourceManager;
-
 import des.wangku.operate.standard.Pv;
+import des.wangku.operate.standard.desktop.DesktopConst;
 import des.wangku.operate.standard.desktop.DesktopUtils;
 import des.wangku.operate.standard.desktop.LoadTaskUtils;
+import des.wangku.operate.standard.dialog.HelpDialog;
 import des.wangku.operate.standard.dialog.RunDialog;
-import des.wangku.operate.standard.dialog.Version;
-import des.wangku.operate.standard.utls.UtilsConsts;
 import des.wangku.operate.standard.utls.UtilsDialogState;
 import des.wangku.operate.standard.utls.UtilsSWTListener;
 import des.wangku.operate.standard.utls.UtilsSWTMessageBox;
@@ -68,14 +66,15 @@ public final class Desktop {
 		Pv.Initialization();
 		/** 初始化工程信息 */
 		InitializationProject();
-		shell.setImage(SWTResourceManager.getImage(Desktop.class, "/images/icon/exit.gif"));
+		shell.setImage(DesktopConst.ACC_Shell);
 		shell.setMinimumSize(new Point(120, 27));
 		shell.setSize(912, 642);
-		shell.setText(UtilsConsts.ACC_ProjectTitleDefault);
+		shell.setText(DesktopConst.ACC_ProjectTitleDefault);
 		shell.setMenuBar(menu);
 		UtilsDialogState.changeDialogCenter(shell);
 		menuItemCommondList.setText("任务列表");
 		menuItemCommondList.setEnabled(false);
+		menuItemCommondList.setImage(DesktopConst.ACC_M0task);
 		menu_List = new Menu(menuItemCommondList);
 		menuItemCommondList.setMenu(menu_List);
 
@@ -83,33 +82,27 @@ public final class Desktop {
 
 		compositeMain.setBounds(0, 0, 900, 550);
 
-		/**
-		 * 主框架中的鼠标右键
-		 * Menu compositeMainMenu = new Menu(compositeMain);
-		 * MenuItem miversion = new MenuItem(compositeMainMenu, SWT.NONE);
-		 * miversion.setText("版本说明");
-		 * miversion.addListener(SWT.Selection, UtilsSWTListener.getListenerShowVersion(Desktop.class, "/update.info"));
-		 */
 		MenuItem menuVersionList = new MenuItem(menu, SWT.CASCADE);
 		menuVersionList.setText("版本信息");
+		menuVersionList.setImage(DesktopConst.ACC_M0ver);
 		Menu menuVersion = new Menu(menuVersionList);
 		menuVersionList.setMenu(menuVersion);
 
 		MenuItem menuItem_21 = new MenuItem(menuVersion, SWT.NONE);
 		menuItem_21.setText("版本\tCtrl+S");
 		menuItem_21.setAccelerator(SWT.CTRL + 'S');
-		menuItem_21.setImage(SWTResourceManager.getImage(Desktop.class, "/images/icon/version.gif"));
+		menuItem_21.setImage(DesktopUtils.getImagesIcon("version.gif"));
 		menuItem_21.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 				InputStream is = Const.class.getClassLoader().getResourceAsStream("update.info");
-				Version ver = new Version(shell, 0, is);
+				HelpDialog ver = new HelpDialog(shell, 0, is);
 				ver.open();
 			}
 		});
 		MenuItem menuItem_exit = new MenuItem(menu, SWT.NONE);
 		menuItem_exit.setText("退出");
 		menuItem_exit.setAccelerator(SWT.CTRL + 'Q');
-		menuItem_exit.setImage(SWTResourceManager.getImage(Desktop.class, "/images/icon/exist.gif"));
+		menuItem_exit.setImage(DesktopConst.ACC_M0exit);
 		menuItem_exit.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 				DesktopUtils.existProject(compositeMain);
@@ -194,37 +187,68 @@ public final class Desktop {
 		MenuItem set = new MenuItem(menu, SWT.CASCADE);
 		set.setText("设置");
 		set.setEnabled(true);
+		set.setImage(DesktopConst.ACC_M0set);
 		Menu menu_Set = new Menu(set);
 		set.setMenu(menu_Set);
 		MenuItem menuItem = new MenuItem(menu_Set, SWT.CASCADE);
 		menuItem.setText("声音");
-		menuItem.setImage(SWTResourceManager.getImage(Desktop.class, "/images/icon/voice.ico"));
+		menuItem.setImage(DesktopUtils.getImagesIcon("voice.ico"));
 		Menu menuGroup = new Menu(shell, SWT.DROP_DOWN);
 		menuItem.setMenu(menuGroup);
-		MenuItem m1 = new MenuItem(menuGroup, SWT.CHECK);
-		m1.setSelection(false);
-		m1.setText("提示警告");
-		m1.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				UtilsSWTMessageBox.VOICE_AlERT = m1.getSelection();
-			}
-		});
-		MenuItem m2 = new MenuItem(menuGroup, SWT.CHECK);
-		m2.setSelection(false);
-		m2.setText("确认弹窗");
-		m2.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				UtilsSWTMessageBox.VOICE_CONFIRM = m2.getSelection();
-			}
-		});
-		MenuItem m3 = new MenuItem(menuGroup, SWT.CHECK);
-		m3.setSelection(false);
-		m3.setText("线程结束");
-		m3.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				RunDialog.VOICE_RUNDIALOG = m3.getSelection();
-			}
-		});
+		{
+			MenuItem m = new MenuItem(menuGroup, SWT.CHECK);
+			boolean val = DesktopConst.isSysMSVwarning;
+			m.setSelection(val);
+			UtilsSWTMessageBox.VOICE_AlERT = val;
+			m.setText("提示警告");
+			m.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event e) {
+					UtilsSWTMessageBox.VOICE_AlERT = m.getSelection();
+				}
+			});
+		}
+		{
+			MenuItem m = new MenuItem(menuGroup, SWT.CHECK);
+			boolean val = DesktopConst.isSysMSVconfirm;
+			m.setSelection(val);
+			UtilsSWTMessageBox.VOICE_CONFIRM = val;
+			m.setText("确认弹窗");
+			m.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event e) {
+					UtilsSWTMessageBox.VOICE_CONFIRM = m.getSelection();
+				}
+			});
+
+		}
+		{
+			MenuItem m = new MenuItem(menuGroup, SWT.CHECK);
+			boolean val = DesktopConst.isSysMSVthread;
+			m.setSelection(val);
+			RunDialog.VOICE_RUNDIALOG = val;
+			m.setText("线程结束");
+			m.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event e) {
+					RunDialog.VOICE_RUNDIALOG = m.getSelection();
+				}
+			});
+		}
+		MenuItem menuItemRem = new MenuItem(menu_Set, SWT.CASCADE);
+		menuItemRem.setText("记录");
+		menuItemRem.setImage(DesktopUtils.getImagesIcon("Memory.ico"));
+		Menu menuGroupRem = new Menu(shell, SWT.DROP_DOWN);
+		menuItemRem.setMenu(menuGroupRem);
+		{
+			MenuItem m = new MenuItem(menuGroupRem, SWT.CHECK);
+			boolean val = DesktopConst.isSysMSRInput;
+			m.setSelection(val);
+			RunDialog.VOICE_RUNDIALOG = val;
+			m.setText("输入框记忆");
+			m.addListener(SWT.Selection, new Listener() {
+				public void handleEvent(Event e) {
+					DesktopConst.Remember_Input = m.getSelection();
+				}
+			});
+		}
 	}
 
 	/**

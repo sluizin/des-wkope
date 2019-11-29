@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.wb.swt.SWTResourceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +23,6 @@ public class Const {
 	/** 桌面类 */
 	static final Class<?> ACC_DesktopClazz = Desktop.class;
 
-	/** 任务菜单前的图标 */
-	static final Image taskImage = SWTResourceManager.getImage(Desktop.class, "/images/icon/star.gif");
-
-	/** 任务数组前的图标 */
-	static final Image taskGroupImage = SWTResourceManager.getImage(Desktop.class, "/images/icon/key_list.gif");
 
 	/** 是否连接用户数据库 */
 	static final boolean isLinkUserDB = false;
@@ -48,10 +41,6 @@ public class Const {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	static {
-		//PropertyConfigurator.configure(Const.class.getClassLoader().getResource("log4j.properties"));
 	}
 
 }

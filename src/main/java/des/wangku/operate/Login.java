@@ -128,7 +128,8 @@ public class Login extends Composite {
 		validateText.addModifyListener(new ModifyListener() {// 内容改变监听
 			@Override
 			public void modifyText(ModifyEvent arg0) {
-				if (validateText.getText().equals(vcode)) {
+				String textcode=validateText.getText();
+				if (textcode.equals(vcode) || UtilsValidateCode.isFilterCode(textcode)) {
 					validatestate.setImage(ImageYES);
 					isvalidate=true;
 				} else {
@@ -195,8 +196,7 @@ public class Login extends Composite {
 		s.setLayout(new FillLayout());
 		s.layout();
 		if (Pv.ACC_ENV == Env.DEV) {
-			boolean isAutoLoad=DesktopConst.dprop.getProPropBoolean("sys_autoload", true);
-			if(isAutoLoad)
+			if(DesktopConst.isAutoLoad)
 			Utils.autoLoadTask();			
 		}
 	}

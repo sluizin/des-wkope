@@ -25,6 +25,7 @@ import des.wangku.operate.model.Opc_content;
 import des.wangku.operate.model.Opc_user;
 import des.wangku.operate.standard.TaskConsts;
 import des.wangku.operate.standard.database.MainSource;
+import des.wangku.operate.standard.desktop.DesktopConst;
 import des.wangku.operate.standard.desktop.LoadTaskUtils;
 import des.wangku.operate.standard.desktop.TaskObjectClass;
 import des.wangku.operate.standard.dialog.LoadingProgressBar;
@@ -97,7 +98,7 @@ public class Utils {
 			state="[已超期]";
 		}
 		mi.setText(name+state);
-		mi.setImage(Const.taskImage);
+		mi.setImage(DesktopConst.ACC_M0task_taskImage);
 		mi.addListener(SWT.Selection, getMenuItemListener(t));
 		mi.setID(t.getId());
 		return mi;
@@ -118,7 +119,7 @@ public class Utils {
 		for (String key : newmap.keySet()) {
 			MenuItem menuItem = new MenuItem(parent, SWT.CASCADE);
 			menuItem.setText(key);
-			menuItem.setImage(Const.taskGroupImage);
+			menuItem.setImage(DesktopConst.ACC_M0task_taskGroupImage);
 			Menu menuGroup = new Menu(parent.getShell(), SWT.DROP_DOWN);
 			menuItem.setMenu(menuGroup);
 			List<TaskObjectClass> list = newmap.get(key);
@@ -168,8 +169,9 @@ public class Utils {
 			}
 			a2.startup();
 			a2.setBaseTaskTOC(toc);
-			a2.startupProject();
+			a2.afterLoadProject();
 			Desktop.repaintMainComposite();
+			a2.afterRepaintComposite();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
