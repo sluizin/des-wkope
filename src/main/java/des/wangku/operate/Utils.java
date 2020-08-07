@@ -24,8 +24,7 @@ import des.wangku.operate.dao.Opc_userMapper;
 import des.wangku.operate.model.Opc_content;
 import des.wangku.operate.model.Opc_user;
 import des.wangku.operate.standard.TaskConsts;
-import des.wangku.operate.standard.database.MainSource;
-import des.wangku.operate.standard.desktop.DesktopConst;
+import des.wangku.operate.standard.database.DBSource;
 import des.wangku.operate.standard.desktop.LoadTaskUtils;
 import des.wangku.operate.standard.desktop.TaskObjectClass;
 import des.wangku.operate.standard.dialog.LoadingProgressBar;
@@ -67,17 +66,23 @@ public class Utils {
 			TaskObjectClass t = ExtendTaskMap.get(key);
 			t.setMenu(Desktop.menu);
 		}
+		/*
+		for (String key : ExtendTaskMap.keySet()) {
+			TaskObjectClass t = ExtendTaskMap.get(key);
+			logger.warn(getOutLines(t));
+		}*/
 		makeGroup(parent,ExtendTaskMap);
 		for (String key : ExtendTaskMap.keySet()) {
 			TaskObjectClass t = ExtendTaskMap.get(key);
 			if (t.getGroup() != null && t.getGroup().length() > 0) continue;
 			addMenuItem(parent,t);
-			logger.warn(t.getGroup() + "\t" + 
-			t.getIdentifier() + "\t" + 
-					t.getName() + "\t" + 
-			t.isExpire() + "\t\t" + t.getMenuText());
-			//logger.warn(t.toString());
 		}
+	}
+	static String getOutLines(TaskObjectClass t) {
+		String group=t.getGroup().length()==0?"NULL":t.getGroup();
+		return t.isExpire() + "\t" +group+"\t"+ 
+				t.getIdentifier() + "\t" + 
+				t.getName();
 	}
 	/**
 	 * 生成菜单
@@ -98,7 +103,7 @@ public class Utils {
 			state="[已超期]";
 		}
 		mi.setText(name+state);
-		mi.setImage(DesktopConst.ACC_M0task_taskImage);
+		mi.setImage(ImageConst.ACC_M0task_taskImage);
 		mi.addListener(SWT.Selection, getMenuItemListener(t));
 		mi.setID(t.getId());
 		return mi;
@@ -119,7 +124,7 @@ public class Utils {
 		for (String key : newmap.keySet()) {
 			MenuItem menuItem = new MenuItem(parent, SWT.CASCADE);
 			menuItem.setText(key);
-			menuItem.setImage(DesktopConst.ACC_M0task_taskGroupImage);
+			menuItem.setImage(ImageConst.ACC_M0task_taskGroupImage);
 			Menu menuGroup = new Menu(parent.getShell(), SWT.DROP_DOWN);
 			menuItem.setMenu(menuGroup);
 			List<TaskObjectClass> list = newmap.get(key);
@@ -186,7 +191,12 @@ public class Utils {
 		logger.debug("autoLoadTask:"+e.toString());
 		loadTaskObject(e);
 	}
-
+	/**
+	 * 初始化扩展库修改class环境变量
+	 */
+	static final void initExtLibs() {
+		
+	}
 	/**
 	 * 初始化运营中心组织结构信息
 	 */
@@ -209,7 +219,7 @@ public class Utils {
 	 */
 	static final String getContentFromDB() {
 		String content = "";
-		SqlSession session = MainSource.getSession();
+		SqlSession session = DBSource.getMybatisSession();
 		if (session == null) return null;
 		Opc_contentMapper mapper = session.getMapper(Opc_contentMapper.class);
 		try {
@@ -232,7 +242,7 @@ public class Utils {
 	 * @return Opc_user
 	 */
 	static final Opc_user getDBUser(String username, String password) {
-		SqlSession session = MainSource.getSession();
+		SqlSession session = DBSource.getMybatisSession();
 		Opc_userMapper mapper = session.getMapper(Opc_userMapper.class);
 		try {
 			Map<String, Object> map = new HashMap<>();

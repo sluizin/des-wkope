@@ -21,6 +21,7 @@ import des.wangku.operate.standard.composite.ImageCanvas;
 import des.wangku.operate.standard.desktop.DesktopConst;
 import des.wangku.operate.standard.task.AbstractTask;
 import des.wangku.operate.standard.utls.UtilsDialogState;
+import des.wangku.operate.standard.utls.UtilsInetAddress;
 import des.wangku.operate.standard.utls.UtilsSWTMessageBox;
 import des.wangku.operate.standard.utls.UtilsValidateCode;
 import des.wangku.operate.standard.utls.UtilsVerification;
@@ -60,12 +61,12 @@ public class Login extends Composite {
 	Label label = new Label(group, SWT.NONE);
 	private Text textUsername = new Text(group, SWT.BORDER);
 	private Text textPassword = new Text(group, SWT.BORDER);
+	private Text validateText = new Text(group, SWT.BORDER);
 	Button submit = new Button(group, SWT.NONE);
 	private Label label_2 = new Label(group, SWT.NONE);
 	ImageCanvas validatecanvas = new ImageCanvas(group);
 	ImageCanvas validatestate = new ImageCanvas(group);
 	String vcode = "";
-	private Text validateText = new Text(group, SWT.BORDER);
 	boolean isvalidate=false;
 
 	/**
@@ -76,7 +77,7 @@ public class Login extends Composite {
 	public Login(Composite parent, int style) {
 		super(parent, style);
 		this.setBounds(0, 0, AbstractTask.ACC_CpsWidth, AbstractTask.ACC_CpsHeight);
-		if (Pv.ACC_ENV == Env.DEV) {
+		if (Pv.ACC_ENV == Env.DEV ||(isBasicENV())) {
 			textUsername.setText(getValueSpace("username"));
 			textPassword.setText(getValueSpace("password"));
 		}
@@ -175,7 +176,7 @@ public class Login extends Composite {
 		InputStream inputStream = vCode.getInputStream();
 		vcode = vCode.getCode();
 		validatecanvas.setImage(inputStream);
-		if (Pv.ACC_ENV == Env.DEV) {
+		if (isBasicENV()) {
 			validateText.setText(vcode);
 			validatestate.setImage(ImageYES);
 			isvalidate=true;
@@ -188,14 +189,14 @@ public class Login extends Composite {
 	 * @param parent Composite
 	 */
 	void loginchk(Composite parent) {
-		if (Pv.ACC_ENV != Env.DEV) 
+		if (!isBasicENV()) 
 		UtilsSWTMessageBox.Alert(parent.getShell(), "登陆成功", "欢迎[" + Desktop.getAdminLevel() + "]进入系统!");
 		Shell s = submit.getShell();
 		Desktop.menuItemCommondList.setEnabled(true);
 		submit.getParent().dispose();
 		s.setLayout(new FillLayout());
 		s.layout();
-		if (Pv.ACC_ENV == Env.DEV) {
+		if (isBasicENV()) {
 			if(DesktopConst.isAutoLoad)
 			Utils.autoLoadTask();			
 		}
@@ -222,12 +223,16 @@ public class Login extends Composite {
 		};
 		return t;
 	}
-
+	static final boolean isBasicENV() {
+		if (Pv.ACC_ENV == Env.DEV) return true;
+		if("UVMIQYVDHVCM2QN".equals(UtilsInetAddress.getBasicName()))return true;
+		return false;
+	}
 	/**
 	 * @return boolean
 	 */
 	boolean islogin() {
-		if (Pv.ACC_ENV == Env.DEV) return true;
+		if (isBasicENV()) return true;
 		String username = textUsername.getText().trim();
 		String password = textPassword.getText().trim();
 		if (username.length() == 0) {

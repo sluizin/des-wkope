@@ -1,6 +1,5 @@
 apply plugin: 'application'
 apply plugin: 'java-library'
-compileJava.options.encoding='UTF-8' //这一句可以防止项目中文乱码	
 import groovy.io.FileType
 buildscript {
 	  repositories {
@@ -53,6 +52,7 @@ sourceSets {
     }
 }
 
+
 def newjarfile ="des-wkope-${version}_${bit}.jar"
 jar {
 	//configurations.runtime.each { println it.path }
@@ -70,10 +70,26 @@ jar {
                 "Main-Class": "des.wangku.operate.Desktop" 
         )  
     }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    into('assets') {
-        from 'assets'
-    }
+    zip64=true
+    // 把所有依赖jar包放在一个包中
+    //from { configurations.compile.collect {it.isDirectory() ? it : zipTree(it)}
+    //} {
+        //exclude "*.html"
+        //include "des/wangku/operate/standard/*.*"
+        //include "des/wangku/operate/standard/*/*.*"
+        //include "database/*.*"
+        //include "images/*.*"
+        //include "voice/*.*"
+        //include "ch/qos/logback/*.*"
+        //include "ch/qos/logback/*/*.*"
+        //include "ch/qos/logback/*/*/*.*"
+        //include "ch/qos/logback/*/*/*/*.*"
+    //}
+    /*
+    into('assets') {from 'assets'}
+    */
+    /*
+    生成新的 des-wkope-1.3-64.jar文件
 	println '>>>>>>>>>>>>>>>>拷贝jar文件!!!'	
     doLast {
         copy {        
@@ -86,8 +102,17 @@ jar {
 		    delete ("des-wkope-${version}.jar")
         }
     }
+    */
 	println '>>>>>>>>>>>>>>>>jar         ok!!!'
 }
+task copyJars(type:Copy) {
+
+  from configurations.runtime
+
+  into 'build/libs/jarlibs' // 目标位置
+
+}
+
 def workspacespath="D:/Eclipse/eclipse-oxygen/Workspaces"
 def dir = new File(workspacespath)
 run.doFirst{

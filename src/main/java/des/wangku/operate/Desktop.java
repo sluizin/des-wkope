@@ -23,6 +23,7 @@ import des.wangku.operate.standard.desktop.LoadTaskUtils;
 import des.wangku.operate.standard.dialog.HelpDialog;
 import des.wangku.operate.standard.dialog.RunDialog;
 import des.wangku.operate.standard.utls.UtilsDialogState;
+import des.wangku.operate.standard.utls.UtilsExtLibs;
 import des.wangku.operate.standard.utls.UtilsSWTListener;
 import des.wangku.operate.standard.utls.UtilsSWTMessageBox;
 import des.wangku.operate.standard.utls.UtilsSWTTray;
@@ -59,14 +60,14 @@ public final class Desktop {
 
 	/**
 	 * Launch the application.
-	 * @param args
+	 * @param args String[]
 	 */
 	public static void main(String[] args) {
 		/** 环境初始化 */
 		Pv.Initialization();
 		/** 初始化工程信息 */
 		InitializationProject();
-		shell.setImage(DesktopConst.ACC_Shell);
+		shell.setImage(ImageConst.ACC_Shell);
 		shell.setMinimumSize(new Point(120, 27));
 		shell.setSize(912, 642);
 		shell.setText(DesktopConst.ACC_ProjectTitleDefault);
@@ -74,7 +75,7 @@ public final class Desktop {
 		UtilsDialogState.changeDialogCenter(shell);
 		menuItemCommondList.setText("任务列表");
 		menuItemCommondList.setEnabled(false);
-		menuItemCommondList.setImage(DesktopConst.ACC_M0task);
+		menuItemCommondList.setImage(ImageConst.ACC_M0task);
 		menu_List = new Menu(menuItemCommondList);
 		menuItemCommondList.setMenu(menu_List);
 
@@ -84,14 +85,14 @@ public final class Desktop {
 
 		MenuItem menuVersionList = new MenuItem(menu, SWT.CASCADE);
 		menuVersionList.setText("版本信息");
-		menuVersionList.setImage(DesktopConst.ACC_M0ver);
+		menuVersionList.setImage(ImageConst.ACC_M0ver);
 		Menu menuVersion = new Menu(menuVersionList);
 		menuVersionList.setMenu(menuVersion);
 
 		MenuItem menuItem_21 = new MenuItem(menuVersion, SWT.NONE);
 		menuItem_21.setText("版本\tCtrl+S");
 		menuItem_21.setAccelerator(SWT.CTRL + 'S');
-		menuItem_21.setImage(DesktopUtils.getImagesIcon("version.gif"));
+		menuItem_21.setImage(ImageConst.getImagesIcon("version.gif"));
 		menuItem_21.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 				InputStream is = Const.class.getClassLoader().getResourceAsStream("update.info");
@@ -102,7 +103,7 @@ public final class Desktop {
 		MenuItem menuItem_exit = new MenuItem(menu, SWT.NONE);
 		menuItem_exit.setText("退出");
 		menuItem_exit.setAccelerator(SWT.CTRL + 'Q');
-		menuItem_exit.setImage(DesktopConst.ACC_M0exit);
+		menuItem_exit.setImage(ImageConst.ACC_M0exit);
 		menuItem_exit.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
 				DesktopUtils.existProject(compositeMain);
@@ -187,12 +188,12 @@ public final class Desktop {
 		MenuItem set = new MenuItem(menu, SWT.CASCADE);
 		set.setText("设置");
 		set.setEnabled(true);
-		set.setImage(DesktopConst.ACC_M0set);
+		set.setImage(ImageConst.ACC_M0set);
 		Menu menu_Set = new Menu(set);
 		set.setMenu(menu_Set);
 		MenuItem menuItem = new MenuItem(menu_Set, SWT.CASCADE);
 		menuItem.setText("声音");
-		menuItem.setImage(DesktopUtils.getImagesIcon("voice.ico"));
+		menuItem.setImage(ImageConst.getImagesIcon("voice.ico"));
 		Menu menuGroup = new Menu(shell, SWT.DROP_DOWN);
 		menuItem.setMenu(menuGroup);
 		{
@@ -234,28 +235,31 @@ public final class Desktop {
 		}
 		MenuItem menuItemRem = new MenuItem(menu_Set, SWT.CASCADE);
 		menuItemRem.setText("记录");
-		menuItemRem.setImage(DesktopUtils.getImagesIcon("Memory.ico"));
+		menuItemRem.setImage(ImageConst.getImagesIcon("Memory.ico"));
 		Menu menuGroupRem = new Menu(shell, SWT.DROP_DOWN);
 		menuItemRem.setMenu(menuGroupRem);
 		{
 			MenuItem m = new MenuItem(menuGroupRem, SWT.CHECK);
-			boolean val = DesktopConst.isSysMSRInput;
-			m.setSelection(val);
-			RunDialog.VOICE_RUNDIALOG = val;
+			m.setSelection(DesktopConst.isRemember_Input);
 			m.setText("输入框记忆");
 			m.addListener(SWT.Selection, new Listener() {
 				public void handleEvent(Event e) {
-					DesktopConst.Remember_Input = m.getSelection();
+					DesktopConst.isRemember_Input = m.getSelection();
 				}
 			});
 		}
 	}
 
 	/**
-	 * 初始化运营结构
+	 * 初始化工程信息
 	 */
 	static final void InitializationProject() {
 		Utils.initOperaOrg();
+		if(DesktopConst.isExtJarLibs) {
+			String extPath=DesktopUtils.getJarBasicPathExtLibs();
+			logger.debug("extPath:"+extPath);
+			UtilsExtLibs.addSystemExtLibsCatalog(extPath);
+		}
 	}
 
 	/**
